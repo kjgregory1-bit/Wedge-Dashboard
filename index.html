@@ -154,6 +154,7 @@
     <span class="campaign-badge">The Wedge</span>
   </div>
   <div class="header-right">
+    <span id="saveStatus" style="font-size:12px;font-weight:600;transition:color .3s;margin-right:4px"></span>
     <span class="header-meta" id="lastUpdated"></span>
     <div class="live-dot"></div>
   </div>
@@ -409,6 +410,10 @@
 <footer class="footer">Workday × Capitalize | The Wedge Campaign | Manufacturing &lt;500 FTE | Confidential</footer>
 
 <script>
+// ═══ PASTE YOUR GOOGLE APPS SCRIPT URL BELOW ═══
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLBeEZgrUbB6j0afqkaGXyX98g_gAwCXJYXixhhrfTe_XNp3Tiw7d001VH9sUgq74ulA/exec';
+// ════════════════════════════════════════════════
+
 const STAGES=['—','Qualification','Discovery','Demo Scheduled','Proposal','Closed Won','Closed Lost'];
 const SCLS=['stage-0','stage-1','stage-2','stage-3','stage-4','stage-5','stage-6'];
 const OUTREACH_OPTS=[
@@ -419,6 +424,43 @@ const OUTREACH_OPTS=[
   {v:'demo-scheduled',l:'Demo Scheduled'},
   {v:'no-interest',l:'No Interest'},
 ];
+
+// ─── PERSISTENCE ───
+let saveTimer=null;
+function setSaveStatus(s){
+  const el=document.getElementById('saveStatus');
+  if(!el)return;
+  if(s==='saving'){el.textContent='● Saving...';el.style.color='rgba(255,255,255,0.5)';}
+  else if(s==='saved'){el.textContent='✓ Saved';el.style.color='#00B67A';}
+  else if(s==='error'){el.textContent='⚠ Could not save';el.style.color='#E5334B';}
+  else{el.textContent='';} 
+}
+async function loadData(){
+  if(!SCRIPT_URL||SCRIPT_URL==='PASTE_YOUR_SCRIPT_URL_HERE'){
+    renderDeals();renderLeads();renderProspects();return;
+  }
+  setSaveStatus('saving');
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=get');
+    const data=await res.json();
+    if(data.deals&&data.deals.length) deals=data.deals;
+    if(data.wdLeads){wdLeads=data.wdLeads;if(wdLeads.length)leadCtr=Math.max(leadCtr,...wdLeads.map(l=>l.id+1));}
+    if(data.prospects){prospects=data.prospects;if(prospects.length)prospCtr=Math.max(prospCtr,...prospects.map(p=>p.id+1));}
+    setSaveStatus('saved');
+  }catch(e){setSaveStatus('error');}
+  renderDeals();renderLeads();renderProspects();
+}
+function saveData(){
+  if(!SCRIPT_URL||SCRIPT_URL==='PASTE_YOUR_SCRIPT_URL_HERE')return;
+  clearTimeout(saveTimer);
+  setSaveStatus('saving');
+  saveTimer=setTimeout(async()=>{
+    try{
+      await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'save',deals,wdLeads,prospects})});
+      setSaveStatus('saved');
+    }catch(e){setSaveStatus('error');}
+  },1500);
+}
 
 let deals=[
   {id:1,company:'Navistar Defense',rep:'Andrew Kathan',industry:'Aerospace & Defense',employees:302,state:'IL',outreach:'not-contacted',notes:''},
@@ -479,8 +521,8 @@ function renderDeals(){
   document.getElementById('tab-andrew').textContent=deals.filter(d=>d.rep==='Andrew Kathan').length;
   document.getElementById('tab-kristen').textContent=deals.filter(d=>d.rep==="Kristen O'Connell").length;
 }
-function updOut(id,sel){const d=deals.find(x=>x.id===id);if(d){d.outreach=sel.value;sel.className='outreach-select outreach-'+sel.value;}updateKPIs();}
-function updNote(id,v){const d=deals.find(x=>x.id===id);if(d)d.notes=v;}
+function updOut(id,sel){const d=deals.find(x=>x.id===id);if(d){d.outreach=sel.value;sel.className='outreach-select outreach-'+sel.value;}updateKPIs();saveData();}
+function updNote(id,v){const d=deals.find(x=>x.id===id);if(d){d.notes=v;saveData();}}
 function filterRep(r,btn){activeRep=r;document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');renderDeals();}
 function filterOut(s,btn){activeOut=s;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderDeals();}
 function searchDeals(q){searchQ=q;renderDeals();}
@@ -496,7 +538,7 @@ function saveNewLead(){
   const c=document.getElementById('lCompany').value.trim();if(!c){alert('Company required.');return;}
   const s=document.getElementById('lSentBy').value;if(!s){alert('Select Workday rep.');return;}
   wdLeads.push({id:leadCtr++,company:c,contact:document.getElementById('lContact').value.trim(),sentBy:s,capRep:document.getElementById('lCapRep').value.trim(),industry:document.getElementById('lIndustry').value.trim(),employees:document.getElementById('lEmployees').value||'—',status:document.getElementById('lStatus').value,stage:parseInt(document.getElementById('lStage').value),revenue:parseFloat(document.getElementById('lRevenue').value)||0,dateReceived:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),notes:document.getElementById('lNotes').value.trim()});
-  closeLeadModal();renderLeads();
+  closeLeadModal();renderLeads();saveData();
 }
 function openEditLead(id){
   const l=wdLeads.find(x=>x.id===id);if(!l)return;
@@ -506,9 +548,9 @@ function openEditLead(id){
 function saveEditLead(){
   const id=parseInt(document.getElementById('elId').value);const l=wdLeads.find(x=>x.id===id);if(!l)return;
   l.company=document.getElementById('elCompany').value.trim();l.contact=document.getElementById('elContact').value.trim();l.sentBy=document.getElementById('elSentBy').value;l.capRep=document.getElementById('elCapRep').value.trim();l.industry=document.getElementById('elIndustry').value.trim();l.employees=document.getElementById('elEmployees').value||'—';l.status=document.getElementById('elStatus').value;l.stage=parseInt(document.getElementById('elStage').value);l.revenue=parseFloat(document.getElementById('elRevenue').value)||0;l.notes=document.getElementById('elNotes').value.trim();
-  document.getElementById('editLeadModal').classList.remove('open');renderLeads();
+  document.getElementById('editLeadModal').classList.remove('open');renderLeads();saveData();
 }
-function deleteLead(id){if(!confirm('Remove?'))return;wdLeads=wdLeads.filter(l=>l.id!==id);renderLeads();}
+function deleteLead(id){if(!confirm('Remove?'))return;wdLeads=wdLeads.filter(l=>l.id!==id);renderLeads();saveData();}
 function renderLeads(){
   const tb=document.getElementById('leadsTbody');
   document.getElementById('leadsCount').textContent=wdLeads.length;
@@ -543,9 +585,9 @@ function closeProspectModal(){document.getElementById('prospectModal').classList
 function saveNewProspect(){
   const c=document.getElementById('pCompany').value.trim();if(!c){alert('Company required.');return;}
   prospects.push({id:prospCtr++,company:c,contact:document.getElementById('pContact').value.trim(),emailStatus:document.getElementById('pEmailStatus').value,lastTouch:document.getElementById('pLastTouch').value,date:document.getElementById('pDate').value,nextStep:document.getElementById('pNextStep').value.trim(),demo:document.getElementById('pDemo').value,interest:document.getElementById('pInterest').value,notes:document.getElementById('pNotes').value.trim()});
-  closeProspectModal();renderProspects();
+  closeProspectModal();renderProspects();saveData();
 }
-function deleteProspect(id){if(!confirm('Remove?'))return;prospects=prospects.filter(p=>p.id!==id);renderProspects();}
+function deleteProspect(id){if(!confirm('Remove?'))return;prospects=prospects.filter(p=>p.id!==id);renderProspects();saveData();}
 function renderProspects(){
   const tb=document.getElementById('prospectTbody');
   document.getElementById('prospectCount').textContent=prospects.length;
@@ -601,7 +643,7 @@ function updateKPIs(){
 });
 
 document.getElementById('lastUpdated').textContent='Updated '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-renderDeals();renderLeads();renderProspects();
+loadData();
 </script>
 </body>
 </html>
