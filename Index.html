@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wedge | Workday x Capitalize Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wd-navy: #0F2B5B; --wd-blue: #0073CF; --wd-sky: #00A1E0;
+    --cap-orange: #F4631E; --cap-gold: #F5A623;
+    --bg: #F0F2F7; --surface: #FFFFFF; --surface2: #F8F9FC;
+    --border: #E2E6EF; --text: #0F1929; --text-muted: #6B7A99;
+    --green: #00B67A; --red: #E5334B; --purple: #7C5CFC;
+    --radius: 12px; --shadow: 0 2px 12px rgba(15,43,91,0.08); --shadow-lg: 0 8px 32px rgba(15,43,91,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header { background: var(--wd-navy); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.25); }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-block { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: white; }
+  .logo-wd { background: var(--wd-blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+  .logo-cap { background: var(--cap-orange); color: white; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
+  .divider-x { color: rgba(255,255,255,0.3); }
+  .campaign-badge { background: linear-gradient(135deg,var(--cap-orange),var(--cap-gold)); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-meta { color: rgba(255,255,255,0.45); font-size: 12px; }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .main { max-width: 1440px; margin: 0 auto; padding: 28px 32px; }
+
+  .kpi-band-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding-left: 2px; }
+  .kpi-row { display: grid; gap: 14px; margin-bottom: 8px; }
+  .kpi-row-5 { grid-template-columns: repeat(5, 1fr); }
+
+  .kpi-card { background: var(--surface); border-radius: var(--radius); padding: 18px 20px; border: 1px solid var(--border); box-shadow: var(--shadow); position: relative; overflow: hidden; transition: transform .18s, box-shadow .18s; }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .kpi-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 8px; }
+  .kpi-value { font-size: 30px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 5px; }
+  .kpi-sub { font-size: 11px; color: var(--text-muted); }
+
+  .mfg-kpi-header { display: flex; align-items: center; gap: 12px; margin: 28px 0 12px; }
+  .mfg-kpi-header-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: white; background: linear-gradient(90deg,var(--wd-navy),var(--wd-blue)); padding: 5px 14px; border-radius: 20px; white-space: nowrap; }
+  .mfg-kpi-header-line { flex: 1; height: 1px; background: var(--border); }
+
+  .section-divider { display: flex; align-items: center; gap: 12px; margin: 32px 0 18px; }
+  .section-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .section-divider-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px; white-space: nowrap; }
+
+  .section-block { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px; overflow: hidden; }
+  .stripe-bar { height: 4px; border-radius: 4px 4px 0 0; }
+  .section-block-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface2); }
+  .section-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .section-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+  .tabs { display: flex; gap: 4px; }
+  .tab { padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; border: 1px solid transparent; transition: all .15s; color: var(--text-muted); background: transparent; font-family: inherit; }
+  .tab:hover { background: var(--border); color: var(--text); }
+  .tab.active { background: var(--wd-navy); color: white; border-color: var(--wd-navy); }
+
+  .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 24px; border-bottom: 1px solid var(--border); }
+  .filter-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .filter-btn { padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; border: 1.5px solid var(--border); background: transparent; color: var(--text-muted); transition: all .15s; font-family: inherit; }
+  .filter-btn:hover { border-color: var(--wd-blue); color: var(--wd-blue); }
+  .filter-btn.active { background: var(--wd-navy); color: white; border-color: var(--wd-navy); }
+  .search-input { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); font-size: 12px; background: var(--surface2); color: var(--text); font-family: inherit; outline: none; transition: border .15s; width: 200px; }
+  .search-input:focus { border-color: var(--wd-blue); }
+  .ml-auto { margin-left: auto; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); background: var(--surface2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #F5F7FF; }
+  tbody td { padding: 12px 16px; font-size: 13px; color: var(--text); vertical-align: middle; }
+  .company-name { font-weight: 600; font-size: 13px; }
+  .company-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .notes-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--text-muted); }
+
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-open { background: #E8F4FF; color: var(--wd-blue); }
+  .badge-won { background: #E6FAF3; color: var(--green); }
+  .badge-lost { background: #FDEEF0; color: var(--red); }
+  .stage-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .stage-0 { background: #F0F2F7; color: var(--text-muted); }
+  .stage-1 { background: #E8F4FF; color: var(--wd-blue); }
+  .stage-2 { background: #EEE8FF; color: var(--purple); }
+  .stage-3 { background: #FFF3E8; color: var(--cap-orange); }
+  .stage-4 { background: #FFFBE6; color: #9A7200; }
+  .stage-5 { background: #E6FAF3; color: var(--green); }
+  .stage-6 { background: #FDEEF0; color: var(--red); }
+
+  .rep-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .rep-andrew { background: rgba(0,115,207,0.1); color: var(--wd-blue); }
+  .rep-kristen { background: rgba(244,99,30,0.1); color: var(--cap-orange); }
+  .rep-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .rep-dot-andrew { background: var(--wd-blue); }
+  .rep-dot-kristen { background: var(--cap-orange); }
+
+  .outreach-select { border: 1.5px solid var(--border); background: var(--surface2); font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer; outline: none; padding: 4px 24px 4px 8px; border-radius: 20px; transition: border .12s; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7A99' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; min-width: 130px; }
+  .outreach-not-contacted { border-color: var(--border); color: var(--text-muted); background-color: #F0F2F7; }
+  .outreach-reached-out   { border-color: var(--purple); color: var(--purple); background-color: #EEE8FF; }
+  .outreach-connected     { border-color: var(--green); color: var(--green); background-color: #E6FAF3; }
+  .outreach-in-process    { border-color: var(--wd-blue); color: var(--wd-blue); background-color: #E8F4FF; }
+  .outreach-demo-scheduled{ border-color: var(--cap-orange); color: var(--cap-orange); background-color: #FFF3E8; }
+  .outreach-no-interest   { border-color: var(--red); color: var(--red); background-color: #FDEEF0; }
+
+  .emp-bar-wrap { display: flex; align-items: center; gap: 7px; }
+  .emp-bar { height: 4px; border-radius: 2px; background: var(--wd-sky); opacity: 0.6; min-width: 4px; }
+  .emp-num { font-size: 12px; font-family: 'DM Mono', monospace; }
+  .count-badge { background: var(--wd-blue); color: white; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-left: 5px; }
+
+  .add-btn { padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; border: none; background: var(--wd-navy); color: white; font-family: inherit; transition: opacity .15s; }
+  .add-btn:hover { opacity: 0.85; }
+  .edit-btn { width: 26px; height: 26px; border-radius: 6px; border: none; background: #E8F4FF; color: var(--wd-blue); cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; font-family: inherit; }
+  .delete-btn { width: 26px; height: 26px; border-radius: 6px; border: none; background: #FDEEF0; color: var(--red); cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; font-family: inherit; }
+  .action-cell { display: flex; gap: 4px; align-items: center; }
+  .inline-input { border: none; background: transparent; font-family: inherit; font-size: 12px; color: var(--text-muted); outline: none; width: 100%; padding: 2px 4px; border-radius: 4px; transition: background .12s; }
+  .inline-input:hover, .inline-input:focus { background: #EEF2FF; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,43,91,0.5); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 16px; padding: 28px; width: 500px; max-width: 95vw; box-shadow: 0 24px 64px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+  .form-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+  .form-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-input { padding: 9px 13px; border-radius: 8px; border: 1.5px solid var(--border); font-size: 13px; background: var(--surface2); color: var(--text); font-family: inherit; outline: none; transition: border .15s; width: 100%; }
+  .form-input:focus { border-color: var(--wd-blue); }
+  select.form-input { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7A99' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .btn-cancel { padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; border: 1.5px solid var(--border); background: white; color: var(--text-muted); font-family: inherit; }
+  .btn-save { padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; border: none; background: var(--wd-navy); color: white; font-family: inherit; }
+  .empty-state { text-align: center; padding: 36px; color: var(--text-muted); font-size: 13px; }
+  .email-badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+  .email-sent { background: #E6FAF3; color: var(--green); }
+  .email-pending { background: #F0F2F7; color: var(--text-muted); }
+  .email-bounced { background: #FDEEF0; color: var(--red); }
+  .revenue-val { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--green); }
+  .footer { background: var(--wd-navy); color: rgba(255,255,255,0.3); text-align: center; padding: 16px; font-size: 11px; margin-top: 12px; }
+
+  @media(max-width:1100px){ .kpi-row-5{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:700px){ .main{padding:16px;} .kpi-row-5{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="logo-block"><span class="logo-wd">WORKDAY</span><span class="divider-x">×</span><span class="logo-cap">CAPITALIZE</span></div>
+    <span class="campaign-badge">The Wedge</span>
+  </div>
+  <div class="header-right">
+    <span class="header-meta" id="lastUpdated"></span>
+    <div class="live-dot"></div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ═══════ CAMPAIGN OVERVIEW KPIs ═══════ -->
+  <div class="kpi-band-label">Campaign Overview</div>
+  <div class="kpi-row kpi-row-5">
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--wd-navy),var(--wd-blue))"></div>
+      <div class="kpi-label">Overlap Accounts</div>
+      <div class="kpi-value" id="kpi-total">25</div>
+      <div class="kpi-sub">Alteryx clients in territory</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--green),#00D68F)"></div>
+      <div class="kpi-label">Revenue Closed</div>
+      <div class="kpi-value" id="kpi-revenue" style="color:var(--green);font-size:22px">$0</div>
+      <div class="kpi-sub">Manufacturing deals closed</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--wd-blue),var(--wd-sky))"></div>
+      <div class="kpi-label">Open → Closed %</div>
+      <div class="kpi-value" id="kpi-ratio" style="color:var(--wd-blue)">—</div>
+      <div class="kpi-sub" id="kpi-ratio-sub">No deals tracked yet</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--cap-orange),var(--cap-gold))"></div>
+      <div class="kpi-label">Prospects Contacted</div>
+      <div class="kpi-value" id="kpi-contacted" style="color:var(--cap-orange)">0</div>
+      <div class="kpi-sub">From outreach tracker</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--purple),#A07CFF)"></div>
+      <div class="kpi-label">Demos Scheduled</div>
+      <div class="kpi-value" id="kpi-demos" style="color:var(--purple)">0</div>
+      <div class="kpi-sub">From outreach tracker</div>
+    </div>
+  </div>
+
+  <!-- ═══════ MFG LEAD KPIs ═══════ -->
+  <div class="mfg-kpi-header">
+    <span class="mfg-kpi-header-label">&#127981; Workday Manufacturing Inbound Leads</span>
+    <div class="mfg-kpi-header-line"></div>
+  </div>
+  <div class="kpi-row kpi-row-5">
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--wd-sky),var(--wd-blue))"></div>
+      <div class="kpi-label">Total Leads</div>
+      <div class="kpi-value" id="mfg-total">0</div>
+      <div class="kpi-sub">Sent by Workday</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--wd-blue),var(--wd-navy))"></div>
+      <div class="kpi-label">Open</div>
+      <div class="kpi-value" id="mfg-open" style="color:var(--wd-blue)">0</div>
+      <div class="kpi-sub">Active deals</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--green),#00D68F)"></div>
+      <div class="kpi-label">Won</div>
+      <div class="kpi-value" id="mfg-won" style="color:var(--green)">0</div>
+      <div class="kpi-sub">Closed / won</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--red),#FF6B7A)"></div>
+      <div class="kpi-label">Lost</div>
+      <div class="kpi-value" id="mfg-lost" style="color:var(--red)">0</div>
+      <div class="kpi-sub">Closed / lost</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--cap-orange),var(--cap-gold))"></div>
+      <div class="kpi-label">Win Rate</div>
+      <div class="kpi-value" id="mfg-winrate" style="color:var(--cap-orange)">—</div>
+      <div class="kpi-sub" id="mfg-winrate-sub">No closed leads yet</div>
+    </div>
+  </div>
+
+  <!-- ═══════ SECTION 1 ═══════ -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-label">Section 1 — Overlap Accounts</div>
+    <div class="section-divider-line"></div>
+  </div>
+  <div class="section-block">
+    <div class="stripe-bar" style="background:linear-gradient(90deg,var(--wd-navy),var(--wd-sky))"></div>
+    <div class="section-block-header">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(0,115,207,0.1)">&#128204;</div>
+        Alteryx Clients in Workday Territory
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="filterRep('all',this)">All <span class="count-badge" id="tab-all">25</span></button>
+        <button class="tab" onclick="filterRep('andrew',this)">Andrew K. <span class="count-badge" id="tab-andrew">3</span></button>
+        <button class="tab" onclick="filterRep('kristen',this)">Kristen O. <span class="count-badge" id="tab-kristen">22</span></button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <span class="filter-label">Outreach:</span>
+      <button class="filter-btn active" onclick="filterOut('all',this)">All</button>
+      <button class="filter-btn" onclick="filterOut('connected',this)">Connected</button>
+      <button class="filter-btn" onclick="filterOut('in-process',this)">In Process</button>
+      <button class="filter-btn" onclick="filterOut('reached-out',this)">Reached Out</button>
+      <button class="filter-btn" onclick="filterOut('demo-scheduled',this)">Demo Scheduled</button>
+      <button class="filter-btn" onclick="filterOut('no-interest',this)">No Interest</button>
+      <button class="filter-btn" onclick="filterOut('not-contacted',this)">Not Contacted</button>
+      <span class="ml-auto"><input type="text" class="search-input" placeholder="&#128269; Search..." oninput="searchDeals(this.value)" /></span>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr>
+        <th>Company</th><th>Workday Rep</th><th>Industry</th><th>Employees</th><th>State</th><th>Outreach Status</th><th>Notes</th>
+      </tr></thead><tbody id="dealsTbody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ═══════ SECTION 2 ═══════ -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-label">Section 2 — Workday Manufacturing Inbound Leads</div>
+    <div class="section-divider-line"></div>
+  </div>
+  <div class="section-block">
+    <div class="stripe-bar" style="background:linear-gradient(90deg,var(--wd-sky),var(--cap-orange),var(--cap-gold))"></div>
+    <div class="section-block-header">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(244,99,30,0.1)">&#127981;</div>
+        Workday Manufacturing Inbound Leads
+        <span class="count-badge" id="leadsCount" style="background:var(--cap-orange)">0</span>
+      </div>
+      <button class="add-btn" style="background:var(--cap-orange)" onclick="openLeadModal()">+ Add Lead</button>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr>
+        <th>Company</th><th>Contact</th><th>Workday Rep</th><th>Capitalize Rep</th><th>Industry</th><th>Employees</th><th>Deal Status</th><th>Sales Stage</th><th>Revenue</th><th>Date Received</th><th>Notes</th><th>Actions</th>
+      </tr></thead><tbody id="leadsTbody">
+        <tr><td colspan="12" class="empty-state">No leads yet. Click <strong>+ Add Lead</strong> to log leads from Workday.</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <!-- ═══════ SECTION 3 ═══════ -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <div class="section-divider-label">Section 3 — Outreach &amp; Prospecting Tracker</div>
+    <div class="section-divider-line"></div>
+  </div>
+  <div class="section-block">
+    <div class="stripe-bar" style="background:linear-gradient(90deg,var(--purple),var(--wd-sky),var(--cap-gold))"></div>
+    <div class="section-block-header">
+      <div class="section-title">
+        <div class="section-icon" style="background:rgba(124,92,252,0.1)">&#128231;</div>
+        Outreach to Existing Clients
+        <span class="count-badge" id="prospectCount" style="background:var(--purple)">0</span>
+      </div>
+      <button class="add-btn" style="background:var(--purple)" onclick="openProspectModal()">+ Add Outreach</button>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr>
+        <th>Company</th><th>Contact</th><th>Email Status</th><th>Last Touch</th><th>Date</th><th>Next Step</th><th>Demo?</th><th>Interest</th><th>Notes</th><th>Actions</th>
+      </tr></thead><tbody id="prospectTbody">
+        <tr><td colspan="10" class="empty-state">No outreach logged yet. Click <strong>+ Add Outreach</strong> to track your efforts.</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ADD LEAD MODAL -->
+<div class="modal-overlay" id="leadModal">
+  <div class="modal">
+    <div class="modal-title">&#127981; Add Manufacturing Lead</div>
+    <div class="form-row"><label class="form-label">Company Name *</label><input class="form-input" id="lCompany" placeholder="e.g. Acme Manufacturing" /></div>
+    <div class="form-row"><label class="form-label">Contact Name</label><input class="form-input" id="lContact" placeholder="e.g. Jane Smith, CFO" /></div>
+    <div class="form-row"><label class="form-label">Workday Rep *</label>
+      <select class="form-input" id="lSentBy"><option value="">Select rep...</option><option>Andrew Kathan</option><option>Kristen O'Connell</option><option>Other</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Capitalize Rep</label><input class="form-input" id="lCapRep" placeholder="e.g. Kamal" /></div>
+    <div class="form-row"><label class="form-label">Industry</label><input class="form-input" id="lIndustry" placeholder="e.g. Industrial Machinery" /></div>
+    <div class="form-row"><label class="form-label">Employees (approx.)</label><input class="form-input" id="lEmployees" type="number" placeholder="e.g. 250" /></div>
+    <div class="form-row"><label class="form-label">Deal Status</label>
+      <select class="form-input" id="lStatus"><option value="Open">Open</option><option value="Won">Won / Closed</option><option value="Lost">Lost</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Sales Stage</label>
+      <select class="form-input" id="lStage"><option value="0">— No Stage</option><option value="1">Qualification</option><option value="2">Discovery</option><option value="3">Demo Scheduled</option><option value="4">Proposal</option><option value="5">Closed Won</option><option value="6">Closed Lost</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Revenue ($)</label><input class="form-input" id="lRevenue" type="number" placeholder="e.g. 45000" /></div>
+    <div class="form-row"><label class="form-label">Notes</label><input class="form-input" id="lNotes" placeholder="Context from Workday..." /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeLeadModal()">Cancel</button>
+      <button class="btn-save" style="background:var(--cap-orange)" onclick="saveNewLead()">Save Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT LEAD MODAL -->
+<div class="modal-overlay" id="editLeadModal">
+  <div class="modal">
+    <div class="modal-title">&#9998; Edit Lead</div>
+    <input type="hidden" id="elId" />
+    <div class="form-row"><label class="form-label">Company</label><input class="form-input" id="elCompany" /></div>
+    <div class="form-row"><label class="form-label">Contact</label><input class="form-input" id="elContact" /></div>
+    <div class="form-row"><label class="form-label">Workday Rep</label>
+      <select class="form-input" id="elSentBy"><option>Andrew Kathan</option><option>Kristen O'Connell</option><option>Other</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Capitalize Rep</label><input class="form-input" id="elCapRep" /></div>
+    <div class="form-row"><label class="form-label">Industry</label><input class="form-input" id="elIndustry" /></div>
+    <div class="form-row"><label class="form-label">Employees</label><input class="form-input" id="elEmployees" type="number" /></div>
+    <div class="form-row"><label class="form-label">Deal Status</label>
+      <select class="form-input" id="elStatus"><option value="Open">Open</option><option value="Won">Won / Closed</option><option value="Lost">Lost</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Sales Stage</label>
+      <select class="form-input" id="elStage"><option value="0">— No Stage</option><option value="1">Qualification</option><option value="2">Discovery</option><option value="3">Demo Scheduled</option><option value="4">Proposal</option><option value="5">Closed Won</option><option value="6">Closed Lost</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Revenue ($)</label><input class="form-input" id="elRevenue" type="number" /></div>
+    <div class="form-row"><label class="form-label">Notes</label><input class="form-input" id="elNotes" /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('editLeadModal').classList.remove('open')">Cancel</button>
+      <button class="btn-save" onclick="saveEditLead()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PROSPECT MODAL -->
+<div class="modal-overlay" id="prospectModal">
+  <div class="modal">
+    <div class="modal-title">&#128231; Log Outreach Activity</div>
+    <div class="form-row"><label class="form-label">Company Name *</label><input class="form-input" id="pCompany" placeholder="e.g. Lodge Cast Iron" /></div>
+    <div class="form-row"><label class="form-label">Contact Name</label><input class="form-input" id="pContact" placeholder="e.g. Mike Johnson" /></div>
+    <div class="form-row"><label class="form-label">Email Status</label>
+      <select class="form-input" id="pEmailStatus"><option value="Pending">Not Yet Sent</option><option value="Sent">Email Sent</option><option value="Bounced">Bounced</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Last Touch</label>
+      <select class="form-input" id="pLastTouch"><option>Email Sent</option><option>Call Completed</option><option>Demo Requested</option><option>Demo Completed</option><option>Meeting Held</option><option>No Response</option><option>Follow-up Needed</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Date</label><input class="form-input" id="pDate" type="date" /></div>
+    <div class="form-row"><label class="form-label">Next Step</label><input class="form-input" id="pNextStep" placeholder="e.g. Send Adaptive deck" /></div>
+    <div class="form-row"><label class="form-label">Demo?</label>
+      <select class="form-input" id="pDemo"><option value="No">No</option><option value="Yes">Yes — Scheduled</option><option value="Completed">Completed</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Adaptive Interest</label>
+      <select class="form-input" id="pInterest"><option>Unknown</option><option>Low</option><option>Medium</option><option>High</option><option>Champion</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Notes</label><input class="form-input" id="pNotes" placeholder="Key details..." /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeProspectModal()">Cancel</button>
+      <button class="btn-save" style="background:var(--purple)" onclick="saveNewProspect()">Save</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">Workday × Capitalize | The Wedge Campaign | Manufacturing &lt;500 FTE | Confidential</footer>
+
+<script>
+const STAGES=['—','Qualification','Discovery','Demo Scheduled','Proposal','Closed Won','Closed Lost'];
+const SCLS=['stage-0','stage-1','stage-2','stage-3','stage-4','stage-5','stage-6'];
+const OUTREACH_OPTS=[
+  {v:'not-contacted',l:'Not Contacted'},
+  {v:'reached-out',l:'Reached Out'},
+  {v:'connected',l:'Connected'},
+  {v:'in-process',l:'In Process'},
+  {v:'demo-scheduled',l:'Demo Scheduled'},
+  {v:'no-interest',l:'No Interest'},
+];
+
+let deals=[
+  {id:1,company:'Navistar Defense',rep:'Andrew Kathan',industry:'Aerospace & Defense',employees:302,state:'IL',outreach:'not-contacted',notes:''},
+  {id:2,company:'Terumo Aortic',rep:'Andrew Kathan',industry:'Medical Devices',employees:434,state:'FL',outreach:'not-contacted',notes:''},
+  {id:3,company:'Francis Energy, LLC',rep:'Andrew Kathan',industry:'Electronics & Components',employees:10,state:'OK',outreach:'not-contacted',notes:''},
+  {id:4,company:'Daramic',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:385,state:'NC',outreach:'not-contacted',notes:''},
+  {id:5,company:'Certified Power, Inc.',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:324,state:'IL',outreach:'not-contacted',notes:''},
+  {id:6,company:'Morrison Products',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:353,state:'OH',outreach:'not-contacted',notes:''},
+  {id:7,company:'Tex-Isle Supply',rep:"Kristen O'Connell",industry:'Diversified Metals & Mining',employees:113,state:'TX',outreach:'not-contacted',notes:''},
+  {id:8,company:'RG Group',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:124,state:'PA',outreach:'not-contacted',notes:''},
+  {id:9,company:'Lodge Cast Iron',rep:"Kristen O'Connell",industry:'Household Appliances',employees:488,state:'TN',outreach:'not-contacted',notes:''},
+  {id:10,company:'Kingsbury',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:204,state:'PA',outreach:'not-contacted',notes:''},
+  {id:11,company:'Essential Industries',rep:"Kristen O'Connell",industry:'Specialty Chemicals',employees:117,state:'WI',outreach:'not-contacted',notes:''},
+  {id:12,company:'Best Equipment Company',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:37,state:'IN',outreach:'not-contacted',notes:''},
+  {id:13,company:'Advanced Nutrients',rep:"Kristen O'Connell",industry:'Specialty Chemicals',employees:155,state:'CA',outreach:'not-contacted',notes:''},
+  {id:14,company:'G.W. Berkheimer',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:265,state:'IN',outreach:'not-contacted',notes:''},
+  {id:15,company:'Stanley',rep:"Kristen O'Connell",industry:'Household Appliances',employees:270,state:'WA',outreach:'not-contacted',notes:''},
+  {id:16,company:'AGC Chemicals Americas',rep:"Kristen O'Connell",industry:'Specialty Chemicals',employees:150,state:'PA',outreach:'not-contacted',notes:''},
+  {id:17,company:'Trecora Resources',rep:"Kristen O'Connell",industry:'Specialty Chemicals',employees:149,state:'TX',outreach:'not-contacted',notes:''},
+  {id:18,company:'Whitewater Brands',rep:"Kristen O'Connell",industry:'Auto Parts & Tires',employees:152,state:'ID',outreach:'not-contacted',notes:''},
+  {id:19,company:'Gulf Electroquip, Ltd.',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:80,state:'TX',outreach:'not-contacted',notes:''},
+  {id:20,company:'Belt Power, LLC',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:90,state:'GA',outreach:'not-contacted',notes:''},
+  {id:21,company:'Puckett Machinery Company',rep:"Kristen O'Connell",industry:'Industrial & Heavy Machinery',employees:350,state:'MS',outreach:'not-contacted',notes:''},
+  {id:22,company:'Vertex Energy',rep:"Kristen O'Connell",industry:'Specialty Chemicals',employees:481,state:'TX',outreach:'not-contacted',notes:''},
+  {id:23,company:'American Alloy Steel',rep:"Kristen O'Connell",industry:'Diversified Metals & Mining',employees:179,state:'TX',outreach:'not-contacted',notes:''},
+  {id:24,company:'Lilac Solutions',rep:"Kristen O'Connell",industry:'Diversified Metals & Mining',employees:150,state:'CA',outreach:'not-contacted',notes:''},
+  {id:25,company:'Navistar Defense (Corp)',rep:'Andrew Kathan',industry:'Aerospace & Defense',employees:302,state:'IL',outreach:'not-contacted',notes:''},
+];
+let wdLeads=[], prospects=[];
+let leadCtr=100, prospCtr=200, activeRep='all', activeOut='all', searchQ='';
+
+// ─── SECTION 1 ───
+function renderDeals(){
+  const tb=document.getElementById('dealsTbody');
+  const f=deals.filter(d=>{
+    const rm=activeRep==='all'||(activeRep==='andrew'&&d.rep==='Andrew Kathan')||(activeRep==='kristen'&&d.rep==="Kristen O'Connell");
+    const om=activeOut==='all'||d.outreach===activeOut;
+    const sm=!searchQ||d.company.toLowerCase().includes(searchQ.toLowerCase())||d.industry.toLowerCase().includes(searchQ.toLowerCase());
+    return rm&&om&&sm;
+  });
+  if(!f.length){tb.innerHTML=`<tr><td colspan="7" class="empty-state">No accounts match.</td></tr>`;return;}
+  tb.innerHTML=f.map(d=>{
+    const isA=d.rep==='Andrew Kathan';
+    const rc=isA?`<span class="rep-chip rep-andrew"><span class="rep-dot rep-dot-andrew"></span>Andrew K.</span>`:`<span class="rep-chip rep-kristen"><span class="rep-dot rep-dot-kristen"></span>Kristen O.</span>`;
+    const ew=Math.max(8,Math.min(80,(d.employees/500)*80));
+    const eb=`<div class="emp-bar-wrap"><div class="emp-bar" style="width:${ew}px"></div><span class="emp-num">${d.employees}</span></div>`;
+    const opts=OUTREACH_OPTS.map(o=>`<option value="${o.v}"${d.outreach===o.v?' selected':''}>${o.l}</option>`).join('');
+    return `<tr>
+      <td><div class="company-name">${d.company}</div><div class="company-sub">${d.state}</div></td>
+      <td>${rc}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${d.industry}</td>
+      <td>${eb}</td>
+      <td style="font-size:12px">${d.state}</td>
+      <td><select class="outreach-select outreach-${d.outreach}" onchange="updOut(${d.id},this)">${opts}</select></td>
+      <td><input class="inline-input" value="${d.notes}" placeholder="Add notes..." onchange="updNote(${d.id},this.value)" style="min-width:140px"/></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('tab-all').textContent=deals.length;
+  document.getElementById('tab-andrew').textContent=deals.filter(d=>d.rep==='Andrew Kathan').length;
+  document.getElementById('tab-kristen').textContent=deals.filter(d=>d.rep==="Kristen O'Connell").length;
+}
+function updOut(id,sel){const d=deals.find(x=>x.id===id);if(d){d.outreach=sel.value;sel.className='outreach-select outreach-'+sel.value;}updateKPIs();}
+function updNote(id,v){const d=deals.find(x=>x.id===id);if(d)d.notes=v;}
+function filterRep(r,btn){activeRep=r;document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');renderDeals();}
+function filterOut(s,btn){activeOut=s;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderDeals();}
+function searchDeals(q){searchQ=q;renderDeals();}
+
+// ─── SECTION 2 ───
+function openLeadModal(){document.getElementById('leadModal').classList.add('open');}
+function closeLeadModal(){
+  document.getElementById('leadModal').classList.remove('open');
+  ['lCompany','lContact','lCapRep','lIndustry','lEmployees','lNotes','lRevenue'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('lSentBy').value='';document.getElementById('lStatus').value='Open';document.getElementById('lStage').value='0';
+}
+function saveNewLead(){
+  const c=document.getElementById('lCompany').value.trim();if(!c){alert('Company required.');return;}
+  const s=document.getElementById('lSentBy').value;if(!s){alert('Select Workday rep.');return;}
+  wdLeads.push({id:leadCtr++,company:c,contact:document.getElementById('lContact').value.trim(),sentBy:s,capRep:document.getElementById('lCapRep').value.trim(),industry:document.getElementById('lIndustry').value.trim(),employees:document.getElementById('lEmployees').value||'—',status:document.getElementById('lStatus').value,stage:parseInt(document.getElementById('lStage').value),revenue:parseFloat(document.getElementById('lRevenue').value)||0,dateReceived:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),notes:document.getElementById('lNotes').value.trim()});
+  closeLeadModal();renderLeads();
+}
+function openEditLead(id){
+  const l=wdLeads.find(x=>x.id===id);if(!l)return;
+  document.getElementById('elId').value=id;document.getElementById('elCompany').value=l.company;document.getElementById('elContact').value=l.contact;document.getElementById('elSentBy').value=l.sentBy;document.getElementById('elCapRep').value=l.capRep||'';document.getElementById('elIndustry').value=l.industry;document.getElementById('elEmployees').value=l.employees==='—'?'':l.employees;document.getElementById('elStatus').value=l.status;document.getElementById('elStage').value=l.stage;document.getElementById('elRevenue').value=l.revenue||'';document.getElementById('elNotes').value=l.notes;
+  document.getElementById('editLeadModal').classList.add('open');
+}
+function saveEditLead(){
+  const id=parseInt(document.getElementById('elId').value);const l=wdLeads.find(x=>x.id===id);if(!l)return;
+  l.company=document.getElementById('elCompany').value.trim();l.contact=document.getElementById('elContact').value.trim();l.sentBy=document.getElementById('elSentBy').value;l.capRep=document.getElementById('elCapRep').value.trim();l.industry=document.getElementById('elIndustry').value.trim();l.employees=document.getElementById('elEmployees').value||'—';l.status=document.getElementById('elStatus').value;l.stage=parseInt(document.getElementById('elStage').value);l.revenue=parseFloat(document.getElementById('elRevenue').value)||0;l.notes=document.getElementById('elNotes').value.trim();
+  document.getElementById('editLeadModal').classList.remove('open');renderLeads();
+}
+function deleteLead(id){if(!confirm('Remove?'))return;wdLeads=wdLeads.filter(l=>l.id!==id);renderLeads();}
+function renderLeads(){
+  const tb=document.getElementById('leadsTbody');
+  document.getElementById('leadsCount').textContent=wdLeads.length;
+  if(!wdLeads.length){tb.innerHTML=`<tr><td colspan="12" class="empty-state">No leads yet. Click <strong>+ Add Lead</strong>.</td></tr>`;updateKPIs();return;}
+  tb.innerHTML=wdLeads.map(l=>{
+    const isA=l.sentBy==='Andrew Kathan';
+    const rc=isA?`<span class="rep-chip rep-andrew"><span class="rep-dot rep-dot-andrew"></span>${l.sentBy}</span>`:`<span class="rep-chip rep-kristen"><span class="rep-dot rep-dot-kristen"></span>${l.sentBy}</span>`;
+    const sb=l.status==='Won'?`<span class="badge badge-won">Won</span>`:l.status==='Lost'?`<span class="badge badge-lost">Lost</span>`:`<span class="badge badge-open">Open</span>`;
+    const sp=`<span class="badge stage-pill ${SCLS[l.stage]}">${STAGES[l.stage]}</span>`;
+    const rv=l.revenue>0?`<span class="revenue-val">$${l.revenue.toLocaleString()}</span>`:`<span style="color:var(--text-muted);font-size:12px">—</span>`;
+    return `<tr>
+      <td><div class="company-name">${l.company}</div></td>
+      <td style="font-size:12px">${l.contact||'—'}</td>
+      <td>${rc}</td>
+      <td style="font-size:13px;font-weight:600;color:var(--wd-navy)">${l.capRep||'—'}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${l.industry||'—'}</td>
+      <td style="font-size:12px;font-family:'DM Mono',monospace">${l.employees}</td>
+      <td>${sb}</td>
+      <td>${sp}</td>
+      <td>${rv}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${l.dateReceived}</td>
+      <td class="notes-cell" title="${l.notes}">${l.notes||'—'}</td>
+      <td><div class="action-cell"><button class="edit-btn" onclick="openEditLead(${l.id})">&#9998;</button><button class="delete-btn" onclick="deleteLead(${l.id})">&#10005;</button></div></td>
+    </tr>`;
+  }).join('');
+  updateKPIs();
+}
+
+// ─── SECTION 3 ───
+function openProspectModal(){document.getElementById('pDate').value=new Date().toISOString().split('T')[0];document.getElementById('prospectModal').classList.add('open');}
+function closeProspectModal(){document.getElementById('prospectModal').classList.remove('open');['pCompany','pContact','pNextStep','pNotes'].forEach(i=>document.getElementById(i).value='');}
+function saveNewProspect(){
+  const c=document.getElementById('pCompany').value.trim();if(!c){alert('Company required.');return;}
+  prospects.push({id:prospCtr++,company:c,contact:document.getElementById('pContact').value.trim(),emailStatus:document.getElementById('pEmailStatus').value,lastTouch:document.getElementById('pLastTouch').value,date:document.getElementById('pDate').value,nextStep:document.getElementById('pNextStep').value.trim(),demo:document.getElementById('pDemo').value,interest:document.getElementById('pInterest').value,notes:document.getElementById('pNotes').value.trim()});
+  closeProspectModal();renderProspects();
+}
+function deleteProspect(id){if(!confirm('Remove?'))return;prospects=prospects.filter(p=>p.id!==id);renderProspects();}
+function renderProspects(){
+  const tb=document.getElementById('prospectTbody');
+  document.getElementById('prospectCount').textContent=prospects.length;
+  if(!prospects.length){tb.innerHTML=`<tr><td colspan="10" class="empty-state">No outreach logged yet.</td></tr>`;updateKPIs();return;}
+  const IC={Unknown:'stage-0',Low:'stage-6',Medium:'stage-3',High:'stage-1',Champion:'stage-5'};
+  const DC={No:'stage-0','Yes — Scheduled':'stage-3',Completed:'stage-5'};
+  const TI={'Email Sent':'&#128231;','Call Completed':'&#128222;','Demo Requested':'&#128187;','Demo Completed':'&#9989;','Meeting Held':'&#129309;','No Response':'&#9201;','Follow-up Needed':'&#128276;'};
+  tb.innerHTML=prospects.map(p=>{
+    const eb=p.emailStatus==='Sent'?`<span class="email-badge email-sent">Sent</span>`:p.emailStatus==='Bounced'?`<span class="email-badge email-bounced">Bounced</span>`:`<span class="email-badge email-pending">Pending</span>`;
+    const ds=p.date?new Date(p.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
+    return `<tr>
+      <td><div class="company-name">${p.company}</div></td>
+      <td style="font-size:12px">${p.contact||'—'}</td>
+      <td>${eb}</td>
+      <td style="font-size:12px">${TI[p.lastTouch]||''} ${p.lastTouch}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${ds}</td>
+      <td style="font-size:12px;color:var(--wd-blue)">${p.nextStep||'—'}</td>
+      <td><span class="badge stage-pill ${DC[p.demo]||'stage-0'}">${p.demo}</span></td>
+      <td><span class="badge stage-pill ${IC[p.interest]||'stage-0'}">${p.interest}</span></td>
+      <td class="notes-cell" title="${p.notes}">${p.notes||'—'}</td>
+      <td><button class="delete-btn" onclick="deleteProspect(${p.id})">&#10005;</button></td>
+    </tr>`;
+  }).join('');
+  updateKPIs();
+}
+
+// ─── KPIs ───
+function fmtMoney(n){if(n>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(n>=1000)return'$'+(n/1000).toFixed(0)+'K';return'$'+n.toLocaleString();}
+function updateKPIs(){
+  // Campaign Overview
+  document.getElementById('kpi-total').textContent=deals.length+wdLeads.length;
+  const won=wdLeads.filter(l=>l.status==='Won');
+  document.getElementById('kpi-revenue').textContent=fmtMoney(won.reduce((s,l)=>s+(l.revenue||0),0));
+  const openL=wdLeads.filter(l=>l.status==='Open').length;
+  const closedL=wdLeads.filter(l=>l.status==='Won'||l.status==='Lost').length;
+  if(closedL+openL>0){const p=Math.round(closedL/(closedL+openL)*100);document.getElementById('kpi-ratio').textContent=p+'%';document.getElementById('kpi-ratio-sub').textContent=`${closedL} closed of ${closedL+openL} total`;}
+  else{document.getElementById('kpi-ratio').textContent='—';document.getElementById('kpi-ratio-sub').textContent='No deals tracked yet';}
+  document.getElementById('kpi-contacted').textContent=prospects.filter(p=>p.emailStatus==='Sent').length;
+  document.getElementById('kpi-demos').textContent=prospects.filter(p=>p.demo==='Yes — Scheduled'||p.demo==='Completed').length;
+  // MFG KPIs
+  document.getElementById('mfg-total').textContent=wdLeads.length;
+  document.getElementById('mfg-open').textContent=openL;
+  document.getElementById('mfg-won').textContent=won.length;
+  const lostL=wdLeads.filter(l=>l.status==='Lost').length;
+  document.getElementById('mfg-lost').textContent=lostL;
+  const dec=won.length+lostL;
+  if(dec>0){const wr=Math.round(won.length/dec*100);document.getElementById('mfg-winrate').textContent=wr+'%';document.getElementById('mfg-winrate-sub').textContent=`${won.length} won of ${dec} decided`;}
+  else{document.getElementById('mfg-winrate').textContent='—';document.getElementById('mfg-winrate-sub').textContent='No closed leads yet';}
+}
+
+['leadModal','editLeadModal','prospectModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+
+document.getElementById('lastUpdated').textContent='Updated '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+renderDeals();renderLeads();renderProspects();
+</script>
+</body>
+</html>
