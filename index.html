@@ -34,6 +34,7 @@
   .kpi-band-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding-left: 2px; }
   .kpi-row { display: grid; gap: 14px; margin-bottom: 8px; }
   .kpi-row-5 { grid-template-columns: repeat(5, 1fr); }
+  .kpi-row-6 { grid-template-columns: repeat(6, 1fr); }
 
   .kpi-card { background: var(--surface); border-radius: var(--radius); padding: 18px 20px; border: 1px solid var(--border); box-shadow: var(--shadow); position: relative; overflow: hidden; transition: transform .18s, box-shadow .18s; }
   .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
@@ -140,10 +141,18 @@
   .email-pending { background: #F0F2F7; color: var(--text-muted); }
   .email-bounced { background: #FDEEF0; color: var(--red); }
   .revenue-val { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--green); }
+  .rev-breakdown { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .rev-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+  .rev-label { color: var(--text-muted); font-weight: 500; }
+  .rev-amount { font-family: 'DM Mono', monospace; font-weight: 600; }
+  .rev-s2 { color: var(--wd-blue); }
+  .rev-s3 { color: var(--purple); }
+  .rev-total { color: var(--green); font-size: 12px; font-weight: 700; }
+  .rev-divider { height: 1px; background: var(--border); margin: 2px 0; }
   .footer { background: var(--wd-navy); color: rgba(255,255,255,0.3); text-align: center; padding: 16px; font-size: 11px; margin-top: 12px; }
 
-  @media(max-width:1100px){ .kpi-row-5{grid-template-columns:repeat(3,1fr);} }
-  @media(max-width:700px){ .main{padding:16px;} .kpi-row-5{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:1200px){ .kpi-row-5{grid-template-columns:repeat(3,1fr);} .kpi-row-6{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:700px){ .main{padding:16px;} .kpi-row-5{grid-template-columns:repeat(2,1fr);} .kpi-row-6{grid-template-columns:repeat(2,1fr);} }
 </style>
 </head>
 <body>
@@ -175,25 +184,30 @@
       <div class="kpi-accent" style="background:linear-gradient(90deg,var(--green),#00D68F)"></div>
       <div class="kpi-label">Revenue Closed</div>
       <div class="kpi-value" id="kpi-revenue" style="color:var(--green);font-size:22px">$0</div>
-      <div class="kpi-sub">Manufacturing deals closed</div>
+      <div class="rev-breakdown">
+        <div class="rev-row"><span class="rev-label">&#127981; S2 — Mfg Leads</span><span class="rev-amount rev-s2" id="kpi-rev-s2">$0</span></div>
+        <div class="rev-row"><span class="rev-label">&#128231; S3 — Outreach</span><span class="rev-amount rev-s3" id="kpi-rev-s3">$0</span></div>
+        <div class="rev-divider"></div>
+        <div class="rev-row"><span class="rev-label" style="font-weight:700;color:var(--text)">Total</span><span class="rev-amount rev-total" id="kpi-rev-total">$0</span></div>
+      </div>
     </div>
     <div class="kpi-card">
       <div class="kpi-accent" style="background:linear-gradient(90deg,var(--wd-blue),var(--wd-sky))"></div>
       <div class="kpi-label">Open → Closed %</div>
       <div class="kpi-value" id="kpi-ratio" style="color:var(--wd-blue)">—</div>
-      <div class="kpi-sub" id="kpi-ratio-sub">No deals tracked yet</div>
+      <div class="kpi-sub" id="kpi-ratio-sub">From Section 3 — Outreach</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-accent" style="background:linear-gradient(90deg,var(--cap-orange),var(--cap-gold))"></div>
       <div class="kpi-label">Prospects Contacted</div>
       <div class="kpi-value" id="kpi-contacted" style="color:var(--cap-orange)">0</div>
-      <div class="kpi-sub">From outreach tracker</div>
+      <div class="kpi-sub">From Section 3 — Outreach</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-accent" style="background:linear-gradient(90deg,var(--purple),#A07CFF)"></div>
       <div class="kpi-label">Demos Scheduled</div>
       <div class="kpi-value" id="kpi-demos" style="color:var(--purple)">0</div>
-      <div class="kpi-sub">From outreach tracker</div>
+      <div class="kpi-sub">From Section 3 — Outreach</div>
     </div>
   </div>
 
@@ -202,7 +216,7 @@
     <span class="mfg-kpi-header-label">&#127981; Workday Manufacturing Inbound Leads</span>
     <div class="mfg-kpi-header-line"></div>
   </div>
-  <div class="kpi-row kpi-row-5">
+  <div class="kpi-row kpi-row-6">
     <div class="kpi-card">
       <div class="kpi-accent" style="background:linear-gradient(90deg,var(--wd-sky),var(--wd-blue))"></div>
       <div class="kpi-label">Total Leads</div>
@@ -228,10 +242,16 @@
       <div class="kpi-sub">Closed / lost</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--cap-orange),var(--cap-gold))"></div>
-      <div class="kpi-label">Win Rate</div>
-      <div class="kpi-value" id="mfg-winrate" style="color:var(--cap-orange)">—</div>
-      <div class="kpi-sub" id="mfg-winrate-sub">No closed leads yet</div>
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--wd-blue),var(--wd-sky))"></div>
+      <div class="kpi-label">Open → Closed %</div>
+      <div class="kpi-value" id="mfg-ratio" style="color:var(--wd-blue)">—</div>
+      <div class="kpi-sub" id="mfg-ratio-sub">No closed leads yet</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:linear-gradient(90deg,var(--green),#00D68F)"></div>
+      <div class="kpi-label">Revenue Closed</div>
+      <div class="kpi-value" id="mfg-revenue" style="color:var(--green);font-size:22px">$0</div>
+      <div class="kpi-sub">From won deals</div>
     </div>
   </div>
 
@@ -315,9 +335,9 @@
     </div>
     <div class="table-wrap">
       <table><thead><tr>
-        <th>Company</th><th>Contact</th><th>Email Status</th><th>Last Touch</th><th>Date</th><th>Next Step</th><th>Demo?</th><th>Interest</th><th>Notes</th><th>Actions</th>
+        <th>Company</th><th>Contact</th><th>Deal Status</th><th>Revenue</th><th>Email Status</th><th>Last Touch</th><th>Date</th><th>Next Step</th><th>Demo?</th><th>Interest</th><th>Notes</th><th>Actions</th>
       </tr></thead><tbody id="prospectTbody">
-        <tr><td colspan="10" class="empty-state">No outreach logged yet. Click <strong>+ Add Outreach</strong> to track your efforts.</td></tr>
+        <tr><td colspan="12" class="empty-state">No outreach logged yet. Click <strong>+ Add Outreach</strong> to track your efforts.</td></tr>
       </tbody></table>
     </div>
   </div>
@@ -385,6 +405,10 @@
     <div class="modal-title">&#128231; Log Outreach Activity</div>
     <div class="form-row"><label class="form-label">Company Name *</label><input class="form-input" id="pCompany" placeholder="e.g. Lodge Cast Iron" /></div>
     <div class="form-row"><label class="form-label">Contact Name</label><input class="form-input" id="pContact" placeholder="e.g. Mike Johnson" /></div>
+    <div class="form-row"><label class="form-label">Deal Status</label>
+      <select class="form-input" id="pDealStatus"><option value="Open">Open</option><option value="Won">Won / Closed</option><option value="Lost">Lost</option></select>
+    </div>
+    <div class="form-row"><label class="form-label">Revenue ($) — if Won</label><input class="form-input" id="pRevenue" type="number" placeholder="e.g. 35000" /></div>
     <div class="form-row"><label class="form-label">Email Status</label>
       <select class="form-input" id="pEmailStatus"><option value="Pending">Not Yet Sent</option><option value="Sent">Email Sent</option><option value="Bounced">Bounced</option></select>
     </div>
@@ -411,7 +435,7 @@
 
 <script>
 // ═══ PASTE YOUR GOOGLE APPS SCRIPT URL BELOW ═══
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLBeEZgrUbB6j0afqkaGXyX98g_gAwCXJYXixhhrfTe_XNp3Tiw7d001VH9sUgq74ulA/exec';
+const SCRIPT_URL = 'https://docs.google.com/spreadsheets/d/1ij51C1fmVG4kdlsE4vZg6layFmdIfQpVT63L1b-LIdU/edit?usp=sharing';
 // ════════════════════════════════════════════════
 
 const STAGES=['—','Qualification','Discovery','Demo Scheduled','Proposal','Closed Won','Closed Lost'];
@@ -581,26 +605,35 @@ function renderLeads(){
 
 // ─── SECTION 3 ───
 function openProspectModal(){document.getElementById('pDate').value=new Date().toISOString().split('T')[0];document.getElementById('prospectModal').classList.add('open');}
-function closeProspectModal(){document.getElementById('prospectModal').classList.remove('open');['pCompany','pContact','pNextStep','pNotes'].forEach(i=>document.getElementById(i).value='');}
+function closeProspectModal(){
+  document.getElementById('prospectModal').classList.remove('open');
+  ['pCompany','pContact','pNextStep','pNotes','pRevenue'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('pDealStatus').value='Open';
+}
 function saveNewProspect(){
   const c=document.getElementById('pCompany').value.trim();if(!c){alert('Company required.');return;}
-  prospects.push({id:prospCtr++,company:c,contact:document.getElementById('pContact').value.trim(),emailStatus:document.getElementById('pEmailStatus').value,lastTouch:document.getElementById('pLastTouch').value,date:document.getElementById('pDate').value,nextStep:document.getElementById('pNextStep').value.trim(),demo:document.getElementById('pDemo').value,interest:document.getElementById('pInterest').value,notes:document.getElementById('pNotes').value.trim()});
+  prospects.push({id:prospCtr++,company:c,contact:document.getElementById('pContact').value.trim(),dealStatus:document.getElementById('pDealStatus').value,revenue:parseFloat(document.getElementById('pRevenue').value)||0,emailStatus:document.getElementById('pEmailStatus').value,lastTouch:document.getElementById('pLastTouch').value,date:document.getElementById('pDate').value,nextStep:document.getElementById('pNextStep').value.trim(),demo:document.getElementById('pDemo').value,interest:document.getElementById('pInterest').value,notes:document.getElementById('pNotes').value.trim()});
   closeProspectModal();renderProspects();saveData();
 }
 function deleteProspect(id){if(!confirm('Remove?'))return;prospects=prospects.filter(p=>p.id!==id);renderProspects();saveData();}
 function renderProspects(){
   const tb=document.getElementById('prospectTbody');
   document.getElementById('prospectCount').textContent=prospects.length;
-  if(!prospects.length){tb.innerHTML=`<tr><td colspan="10" class="empty-state">No outreach logged yet.</td></tr>`;updateKPIs();return;}
+  if(!prospects.length){tb.innerHTML=`<tr><td colspan="12" class="empty-state">No outreach logged yet.</td></tr>`;updateKPIs();return;}
   const IC={Unknown:'stage-0',Low:'stage-6',Medium:'stage-3',High:'stage-1',Champion:'stage-5'};
   const DC={No:'stage-0','Yes — Scheduled':'stage-3',Completed:'stage-5'};
   const TI={'Email Sent':'&#128231;','Call Completed':'&#128222;','Demo Requested':'&#128187;','Demo Completed':'&#9989;','Meeting Held':'&#129309;','No Response':'&#9201;','Follow-up Needed':'&#128276;'};
   tb.innerHTML=prospects.map(p=>{
     const eb=p.emailStatus==='Sent'?`<span class="email-badge email-sent">Sent</span>`:p.emailStatus==='Bounced'?`<span class="email-badge email-bounced">Bounced</span>`:`<span class="email-badge email-pending">Pending</span>`;
     const ds=p.date?new Date(p.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
+    const dealSt=p.dealStatus||'Open';
+    const dsb=dealSt==='Won'?`<span class="badge badge-won">Won</span>`:dealSt==='Lost'?`<span class="badge badge-lost">Lost</span>`:`<span class="badge badge-open">Open</span>`;
+    const rv=(p.revenue&&p.revenue>0)?`<span class="revenue-val" style="color:var(--purple)">$${p.revenue.toLocaleString()}</span>`:`<span style="color:var(--text-muted);font-size:12px">—</span>`;
     return `<tr>
       <td><div class="company-name">${p.company}</div></td>
       <td style="font-size:12px">${p.contact||'—'}</td>
+      <td>${dsb}</td>
+      <td>${rv}</td>
       <td>${eb}</td>
       <td style="font-size:12px">${TI[p.lastTouch]||''} ${p.lastTouch}</td>
       <td style="font-size:12px;color:var(--text-muted)">${ds}</td>
@@ -617,25 +650,39 @@ function renderProspects(){
 // ─── KPIs ───
 function fmtMoney(n){if(n>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(n>=1000)return'$'+(n/1000).toFixed(0)+'K';return'$'+n.toLocaleString();}
 function updateKPIs(){
-  // Campaign Overview
-  document.getElementById('kpi-total').textContent=deals.length+wdLeads.length;
-  const won=wdLeads.filter(l=>l.status==='Won');
-  document.getElementById('kpi-revenue').textContent=fmtMoney(won.reduce((s,l)=>s+(l.revenue||0),0));
-  const openL=wdLeads.filter(l=>l.status==='Open').length;
-  const closedL=wdLeads.filter(l=>l.status==='Won'||l.status==='Lost').length;
-  if(closedL+openL>0){const p=Math.round(closedL/(closedL+openL)*100);document.getElementById('kpi-ratio').textContent=p+'%';document.getElementById('kpi-ratio-sub').textContent=`${closedL} closed of ${closedL+openL} total`;}
-  else{document.getElementById('kpi-ratio').textContent='—';document.getElementById('kpi-ratio-sub').textContent='No deals tracked yet';}
+  // Revenue — S2 from wdLeads won, S3 from prospects won
+  const s2Won=wdLeads.filter(l=>l.status==='Won');
+  const s3Won=prospects.filter(p=>(p.dealStatus||'Open')==='Won');
+  const s2Rev=s2Won.reduce((s,l)=>s+(l.revenue||0),0);
+  const s3Rev=s3Won.reduce((s,p)=>s+(p.revenue||0),0);
+  const totalRev=s2Rev+s3Rev;
+  document.getElementById('kpi-revenue').textContent=fmtMoney(totalRev);
+  document.getElementById('kpi-rev-s2').textContent=fmtMoney(s2Rev);
+  document.getElementById('kpi-rev-s3').textContent=fmtMoney(s3Rev);
+  document.getElementById('kpi-rev-total').textContent=fmtMoney(totalRev);
+
+  // Open→Closed % — from Section 3 prospects dealStatus
+  const s3Open=prospects.filter(p=>(p.dealStatus||'Open')==='Open').length;
+  const s3Closed=prospects.filter(p=>(p.dealStatus||'Open')==='Won'||(p.dealStatus||'Open')==='Lost').length;
+  if(s3Closed+s3Open>0){const pct=Math.round(s3Closed/(s3Closed+s3Open)*100);document.getElementById('kpi-ratio').textContent=pct+'%';document.getElementById('kpi-ratio-sub').textContent=`${s3Closed} closed of ${s3Closed+s3Open} total`;}
+  else{document.getElementById('kpi-ratio').textContent='—';document.getElementById('kpi-ratio-sub').textContent='From Section 3 — Outreach';}
+
+  // Contacted + Demos — Section 3
+  document.getElementById('kpi-total').textContent=24;
   document.getElementById('kpi-contacted').textContent=prospects.filter(p=>p.emailStatus==='Sent').length;
   document.getElementById('kpi-demos').textContent=prospects.filter(p=>p.demo==='Yes — Scheduled'||p.demo==='Completed').length;
-  // MFG KPIs
+
+  // MFG Inbound KPIs — Section 2 only
+  const s2Open=wdLeads.filter(l=>l.status==='Open').length;
+  const s2Closed=wdLeads.filter(l=>l.status==='Won'||l.status==='Lost').length;
   document.getElementById('mfg-total').textContent=wdLeads.length;
-  document.getElementById('mfg-open').textContent=openL;
-  document.getElementById('mfg-won').textContent=won.length;
-  const lostL=wdLeads.filter(l=>l.status==='Lost').length;
-  document.getElementById('mfg-lost').textContent=lostL;
-  const dec=won.length+lostL;
-  if(dec>0){const wr=Math.round(won.length/dec*100);document.getElementById('mfg-winrate').textContent=wr+'%';document.getElementById('mfg-winrate-sub').textContent=`${won.length} won of ${dec} decided`;}
-  else{document.getElementById('mfg-winrate').textContent='—';document.getElementById('mfg-winrate-sub').textContent='No closed leads yet';}
+  document.getElementById('mfg-open').textContent=s2Open;
+  document.getElementById('mfg-won').textContent=s2Won.length;
+  const s2Lost=wdLeads.filter(l=>l.status==='Lost').length;
+  document.getElementById('mfg-lost').textContent=s2Lost;
+  if(s2Closed+s2Open>0){const pct=Math.round(s2Closed/(s2Closed+s2Open)*100);document.getElementById('mfg-ratio').textContent=pct+'%';document.getElementById('mfg-ratio-sub').textContent=`${s2Closed} closed of ${s2Closed+s2Open} total`;}
+  else{document.getElementById('mfg-ratio').textContent='—';document.getElementById('mfg-ratio-sub').textContent='No closed leads yet';}
+  document.getElementById('mfg-revenue').textContent=fmtMoney(s2Rev);
 }
 
 ['leadModal','editLeadModal','prospectModal'].forEach(id=>{
